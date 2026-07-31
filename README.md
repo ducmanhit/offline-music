@@ -1,32 +1,49 @@
 # Cloud Music Offline
 
-App Flutter nghe nhac offline tren iPhone.
+App nghe nhac offline cho iPhone, build bang GitHub Actions thanh file IPA unsigned de ky bang eSign.
 
-## Chuc nang
+## Chuc nang v3
 
-- Import file nhac tu app Files cua iPhone.
-- Dung duoc Google Drive va OneDrive neu ban bat chung trong Files.
-- Copy file vao bo nho rieng cua app de nghe offline.
-- Player co play, pause, next, previous, shuffle, repeat one.
-- Dieu khien bang AirPods qua iOS remote controls.
-- Bat/tat AirPods controls trong Settings.
-- Equalizer iOS native 5 bang tan so bang AVAudioUnitEQ.
+- Giao dien lay cam hung tu app mau: Trang chu, Bit-Perfect, Thu vien, Tham dinh/Cai dat.
+- Trang chu co search, lich su nghe, WiFi transfer, bo chinh am, Wrapped, mix hang ngay, nghe gan day.
+- Thu vien co search, tab Bai hat/Playlist/Thu muc/Nghe si/Album, sap xep, play all, shuffle, alphabet rail.
+- Player toan man hinh co anh bia, metadata chip, waveform, shuffle, repeat, yeu thich, AirPlay hint, sleep timer.
+- Bit-Perfect co Purist mode va duong tin hieu.
+- Cai dat co nhom xo xuong: phat nhac, thong bao, giao dien, WiFi, Wrapped, bo nho, ngon ngu, tai khoan, gioi thieu.
+- Import nhieu file nhac tu Files.
+- Lay nhac tu Google Drive hoac OneDrive thong qua app Files cua iPhone.
+- Truyen nhac tu may tinh qua WiFi bang server HTTP trong app.
+- Copy nhac vao bo nho rieng cua app de nghe offline.
+- Phat nhac bang `just_audio`, on dinh hon native bridge tu viet.
+- Ho tro lock screen va AirPods controls qua `just_audio_background`.
+- Danh dau yeu thich, doi ten bai hat, chon anh bia tu Files, xoa file offline.
+- Sleep timer 15/30/45/60 phut.
+- Sound profile UI voi cac preset Flat, Bass, Vocal, Bright, Night.
 
-## Dinh dang nen dung
+## Build IPA unsigned
 
-- mp3
-- m4a
-- aac
-- wav
-- flac
+Workflow khong can Apple certificate, provisioning profile, hay GitHub Secrets.
 
-## Build IPA unsigned bang GitHub Actions
+Vao GitHub:
 
-Workflow hien tai khong can Apple certificate, provisioning profile, hay GitHub Secrets.
-GitHub Actions se build app iOS bang `--no-codesign`, sau do dong goi thanh file `.ipa` unsigned.
+```text
+Actions -> Build Unsigned iOS IPA -> Run workflow
+```
 
-File nay can duoc ky lai bang eSign, AltStore, Sideloadly, hoac cong cu signing khac truoc khi cai len iPhone.
+Sau khi build xanh, tai artifact:
 
-Vao tab Actions tren GitHub, chon workflow `Build Unsigned iOS IPA`, bam `Run workflow`.
-Sau khi build xong, tai artifact `CloudMusicOffline-unsigned-IPA`.
-Trong artifact do co file `CloudMusicOffline-unsigned.ipa`.
+```text
+CloudMusicOffline-unsigned-IPA
+```
+
+Giai nen artifact se co:
+
+```text
+CloudMusicOffline-unsigned.ipa
+```
+
+Dung file nay dua vao eSign de ky va cai len iPhone.
+
+## Luu y
+
+File IPA unsigned chua cai truc tiep len iPhone duoc. Can ky lai bang eSign, Sideloadly, AltStore, hoac cong cu signing tuong tu.

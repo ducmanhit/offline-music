@@ -25,10 +25,14 @@ jobs:
 
       - name: Patch iOS runner
         run: |
-          cp ios_native/AppDelegate.swift ios/Runner/AppDelegate.swift
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Cloud Music" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes:0 string audio" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :UIFileSharingEnabled bool true" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :LSSupportsOpeningDocumentsInPlace bool true" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :NSLocalNetworkUsageDescription string Cloud Music uses local network access to receive music files from your computer over WiFi." ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :NSBonjourServices array" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :NSBonjourServices:0 string _http._tcp." ios/Runner/Info.plist || true
 
       - name: Build iOS app without signing
         run: flutter build ios --release --no-codesign --build-number "${{ github.run_number }}"
