@@ -20,39 +20,13 @@ App Flutter nghe nhac offline tren iPhone.
 - wav
 - flac
 
-## GitHub Secrets can thiet de build IPA
+## Build IPA unsigned bang GitHub Actions
 
-Tao cac secret nay trong GitHub repo: Settings -> Secrets and variables -> Actions.
+Workflow hien tai khong can Apple certificate, provisioning profile, hay GitHub Secrets.
+GitHub Actions se build app iOS bang `--no-codesign`, sau do dong goi thanh file `.ipa` unsigned.
 
-- `IOS_BUNDLE_ID`: bundle id, vi du `com.tenban.cloudmusic`
-- `APPLE_TEAM_ID`: Apple Team ID
-- `IOS_PROFILE_NAME`: ten provisioning profile
-- `IOS_EXPORT_METHOD`: `ad-hoc`, `development`, hoac `app-store`
-- `IOS_P12_BASE64`: file certificate `.p12` da encode base64
-- `IOS_P12_PASSWORD`: mat khau file `.p12`
-- `IOS_PROVISIONING_PROFILE_BASE64`: file `.mobileprovision` da encode base64
-- `IOS_KEYCHAIN_PASSWORD`: mat khau tam cho keychain tren GitHub Actions
-- `IOS_CODE_SIGN_IDENTITY`: tuy chon, mac dinh la `Apple Distribution`
+File nay can duoc ky lai bang eSign, AltStore, Sideloadly, hoac cong cu signing khac truoc khi cai len iPhone.
 
-## Cach tao chuoi base64
-
-Tren macOS:
-
-```bash
-base64 -i certificate.p12 | pbcopy
-base64 -i profile.mobileprovision | pbcopy
-```
-
-Dan ket qua vao GitHub Secrets tuong ung.
-
-Tren Windows PowerShell:
-
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("certificate.p12")) | Set-Clipboard
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("profile.mobileprovision")) | Set-Clipboard
-```
-
-## Build IPA
-
-Vao tab Actions tren GitHub, chon workflow `Build iOS IPA`, bam `Run workflow`.
-Sau khi build xong, tai file `.ipa` trong phan Artifacts.
+Vao tab Actions tren GitHub, chon workflow `Build Unsigned iOS IPA`, bam `Run workflow`.
+Sau khi build xong, tai artifact `CloudMusicOffline-unsigned-IPA`.
+Trong artifact do co file `CloudMusicOffline-unsigned.ipa`.
