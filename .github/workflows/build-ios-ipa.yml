@@ -30,11 +30,6 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes:0 string audio" ios/Runner/Info.plist || true
 
-      - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install
-
       - name: Build iOS app without signing
         run: flutter build ios --release --no-codesign --build-number "${{ github.run_number }}"
 
