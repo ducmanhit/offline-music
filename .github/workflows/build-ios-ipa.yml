@@ -33,14 +33,47 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :NSLocalNetworkUsageDescription string Cloud Music uses local network access to receive music files from your computer over WiFi." ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :NSBonjourServices array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :NSBonjourServices:0 string _http._tcp." ios/Runner/Info.plist || true
+          ruby scripts/disable_ios_signing.rb
+
+      - name: Prepare Flutter iOS release
+        run: flutter build ios --release --config-only --no-codesign --build-number "${{ github.run_number }}"
+
+      - name: Install iOS pods if present
+        run: |
+          if [ -f ios/Podfile ]; then
+            cd ios
+            pod install
+          fi
+
+      - name: Disable signing after Flutter configuration
+        run: ruby scripts/disable_ios_signing.rb
 
       - name: Build iOS app without signing
-        run: flutter build ios --release --no-codesign --build-number "${{ github.run_number }}"
+        run: |
+          if [ -d ios/Runner.xcworkspace ]; then
+            PROJECT_ARGS=(-workspace ios/Runner.xcworkspace)
+          else
+            PROJECT_ARGS=(-project ios/Runner.xcodeproj)
+          fi
+
+          xcodebuild \
+            "${PROJECT_ARGS[@]}" \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/ios_derived \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            build
 
       - name: Package unsigned IPA
         run: |
           mkdir -p build/ios/ipa/Payload
-          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/Runner.app
+          cp -R build/ios_derived/Build/Products/Release-iphoneos/Runner.app build/ios/ipa/Payload/Runner.app
           cd build/ios/ipa
           zip -qry CloudMusicOffline-unsigned.ipa Payload
 
