@@ -35,8 +35,8 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :NSBonjourServices:0 string _http._tcp." ios/Runner/Info.plist || true
           ruby scripts/disable_ios_signing.rb
 
-      - name: Prepare Flutter iOS release
-        run: flutter build ios --release --config-only --no-codesign --build-number "${{ github.run_number }}"
+      - name: Precache iOS engine
+        run: flutter precache --ios
 
       - name: Install iOS pods if present
         run: |
@@ -48,7 +48,7 @@ jobs:
       - name: Disable signing after Flutter configuration
         run: ruby scripts/disable_ios_signing.rb
 
-      - name: Build iOS app without signing
+      - name: Xcode unsigned build
         run: |
           if [ -d ios/Runner.xcworkspace ]; then
             PROJECT_ARGS=(-workspace ios/Runner.xcworkspace)
@@ -63,6 +63,9 @@ jobs:
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
             -derivedDataPath build/ios_derived \
+            FLUTTER_BUILD_MODE=release \
+            FLUTTER_BUILD_NAME=1.0.0 \
+            FLUTTER_BUILD_NUMBER="${{ github.run_number }}" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
