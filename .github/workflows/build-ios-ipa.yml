@@ -25,6 +25,7 @@ jobs:
 
       - name: Patch iOS runner
         run: |
+          cp ios_native/AppDelegate.swift ios/Runner/AppDelegate.swift
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Cloud Music" ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" ios/Runner/Info.plist || true
           /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes:0 string audio" ios/Runner/Info.plist || true
@@ -50,12 +51,14 @@ jobs:
 
       - name: Xcode unsigned build
         run: |
+          mkdir -p build/logs
           if [ -d ios/Runner.xcworkspace ]; then
             PROJECT_ARGS=(-workspace ios/Runner.xcworkspace)
           else
             PROJECT_ARGS=(-project ios/Runner.xcodeproj)
           fi
 
+          set +e
           xcodebuild \
             "${PROJECT_ARGS[@]}" \
             -scheme Runner \
@@ -71,7 +74,15 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
-            build
+            ENABLE_USER_SCRIPT_SANDBOXING=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            build 2>&1 | tee build/logs/xcodebuild.log
+          STATUS=${PIPESTATUS[0]}
+          if [ "$STATUS" -ne 0 ]; then
+            echo "---- xcodebuild errors ----"
+            grep -nEi "error:|fatal error:|No profiles|Signing|Command PhaseScriptExecution|Sandbox" build/logs/xcodebuild.log || true
+            exit "$STATUS"
+          fi
 
       - name: Package unsigned IPA
         run: |
@@ -85,3 +96,10 @@ jobs:
         with:
           name: CloudMusicOffline-unsigned-IPA
           path: build/ios/ipa/CloudMusicOffline-unsigned.ipa
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CloudMusicOffline-build-logs
+          path: build/logs
