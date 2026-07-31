@@ -366,8 +366,16 @@ class PlayerController extends ChangeNotifier {
   }
 
   Future<void> syncSettings() async {
-    await bridge.setControlsEnabled(library.airPodsControlsEnabled);
-    await bridge.setEq(enabled: library.eqEnabled, bands: library.eqBands);
+    try {
+      await bridge
+          .setControlsEnabled(library.airPodsControlsEnabled)
+          .timeout(const Duration(seconds: 2));
+      await bridge
+          .setEq(enabled: library.eqEnabled, bands: library.eqBands)
+          .timeout(const Duration(seconds: 2));
+    } on Object {
+      // Keep the app usable if the native audio bridge is slow or unavailable.
+    }
   }
 
   void toggleShuffle() {
@@ -406,9 +414,16 @@ class _CloudMusicAppState extends State<CloudMusicApp> {
   }
 
   Future<void> _load() async {
-    await library.load();
-    await player.syncSettings();
-    setState(() => ready = true);
+    try {
+      await library.load().timeout(const Duration(seconds: 3));
+      await player.syncSettings();
+    } on Object {
+      // The library screen should still open even if audio setup fails.
+    } finally {
+      if (mounted) {
+        setState(() => ready = true);
+      }
+    }
   }
 
   @override
